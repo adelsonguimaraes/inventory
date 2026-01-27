@@ -1,0 +1,27 @@
+{
+    "name": "TechStock Microservices",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "identity_service", // Serviço padrão para abrir o terminal
+    "workspaceFolder": "/app",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "ms-python.flake8"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/bin/python3",
+                "python.formatting.provider": "black",
+                "python.linting.flake8Enabled": true,
+                "python.linting.enabled": true,
+                "editor.formatOnSave": true, // Garante PEP 8 ao salvar
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "always"
+                }
+            }
+        }
+    },
+    "remoteUser": "root"
+}

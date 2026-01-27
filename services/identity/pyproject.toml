@@ -1,0 +1,17 @@
+[project]
+name = "identity-service"
+version = "0.1.0"
+description = "Authentication Service and User Management"
+authors = [{name = "Adelson"}]
+dependencies = [
+    "django>=5.0",
+    "djangorestframework",
+    "djangorestframework-simplejwt",
+    "django-cors-headers",
+    "psycopg2-binary",
+    "drf-spectacular",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
