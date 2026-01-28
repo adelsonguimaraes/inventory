@@ -29,8 +29,9 @@ Com certeza. O checklist é o seu mapa de guerra para a apresentação. Agora qu
 Aqui está o checklist atualizado com os próximos passos estratégicos:
 
 📑 README.md: TechStock Microservices (Master)
-✅ Checklist de Desenvolvimento
+✅ Checklist de Desenvolvimento Atualizado
 🟢 Fase 1: Infraestrutura e Setup
+
 [x] Criar docker-compose.yml com redes isoladas e bancos independentes.
 
 [x] Configurar Dockerfile (Ubuntu 24.04 + PEP 668 bypass).
@@ -42,6 +43,7 @@ Aqui está o checklist atualizado com os próximos passos estratégicos:
 [x] Validar comunicação entre Gateway e Django.
 
 🔵 Fase 2: Identity Service (Auth)
+
 [x] Setup do projeto Django e criação do app accounts.
 
 [x] Implementação do CustomUser Model (E-mail como login + PEP 484).
@@ -54,34 +56,33 @@ Aqui está o checklist atualizado com os próximos passos estratégicos:
 
 [x] Configuração do Swagger (OpenAPI 3) para documentação.
 
-🟠 Fase 3: Inventory Service (Core Business) 👈 PRÓXIMO PASSO
-[ ] Criação do serviço inventory_service e banco PostgreSQL dedicado.
+🟠 Fase 3: Inventory Service (Core Business)
 
-[ ] Modelagem de dados: Category, Product e StockTransaction.
+[x] Criação do serviço inventory_service e banco PostgreSQL dedicado.
 
-[ ] Implementação de ViewSets para CRUD completo (List, Create, Retrieve, Update, Delete).
+[x] Modelagem de dados: Category e Product.
 
-[ ] Integração de Segurança: Validar o JWT do Identity Service no Inventário.
+[x] Implementação de ViewSets para CRUD completo.
 
-[ ] Relatórios simples de estoque (Soma de quantidades por produto).
+[x] Integração de Segurança: Validar o JWT do Identity Service (Stateless).
 
-🟡 Fase 4: Frontend Web (React + TypeScript)
+[x] Modelagem de StockTransaction (Histórico de entradas/saídas).
+
+[x] Relatórios simples de estoque (Status consolidado via @action).
+
+[x] Configuração do Swagger para o Inventory Service.
+
+🟡 Fase 4: Frontend Web (React + TypeScript) 👈 NOSSO PRÓXIMO ALVO
+
 [ ] Setup do projeto React com Vite e Tailwind CSS.
 
-[ ] Implementação de Context API / TanStack Query para gestão de estado do usuário.
+[ ] Implementação de Axios Interceptors para gestão do JWT.
+
+[ ] Implementação de Context API para gestão de estado do usuário.
 
 [ ] Tela de Login e Registro consumindo a API de Identidade.
 
 [ ] Dashboard de Inventário consumindo o CRUD de produtos.
-
-[ ] Proteção de rotas no Frontend (Privado vs. Público).
-
-🔴 Fase 5: Finalização e Deploy
-[ ] Configuração de logs centralizados.
-
-[ ] Testes de integração entre os microserviços.
-
-[ ] Documentação final do projeto para a banca (Relatório técnico).
 
 # Defesa 1
 🧐 Pontos de Atenção para a Defesa Técnica

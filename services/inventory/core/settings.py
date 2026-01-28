@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-p30nb_hk(^dc^nw)nh02g=t#7hdd6s$--5vgj*sxl^2*68&kfi"
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-p30nb_hk(^dc^nw)nh02g=t#7hdd6s$--5vgj*sxl^2*68&kfo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "drf_spectacular",
+    "products",
 ]
 
 MIDDLEWARE = [
@@ -73,12 +77,59 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'inventory_db',
+        'USER': 'admin',
+        'PASSWORD': 'secret',
+        'HOST': 'db_inventory', 
+        'PORT': '5432',
     }
 }
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'products.authentication.StatelessJWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Inventory Service API',
+    'DESCRIPTION': 'Gestão de produtos, categorias e movimentação de estoque.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True,
+    'SECURITY': [{'BearerAuth': []}],
+    'APPEND_COMPONENTS': {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
+}
+
+from datetime import timedelta
+
+SECRET_KEY_ENV = os.environ.get('JWT_SECRET_KEY', 'your-default-jwt-secret-key')
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': os.environ.get('JWT_SECRET_KEY', SECRET_KEY_ENV),
+    'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}
+
+SIMPLE_JWT['USER_AUTHENTICATION_RULE'] = 'rest_framework_simplejwt.authentication.default_user_authentication_rule'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

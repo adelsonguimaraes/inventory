@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-(hm4+bn1pfua7mc-#nykhzm!z7$7455!!7v+ta484kx7+mlqhu"
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-p30nb_hk(^dc^nw)nh02g=t#7hdd6s$--5vgj*sxl^2*68&kfi')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -107,7 +108,10 @@ SPECTACULAR_SETTINGS = {
 
 from datetime import timedelta
 
+SECRET_KEY_ENV = os.environ.get('JWT_SECRET_KEY', 'your-default-jwt-secret-key')
+
 SIMPLE_JWT = {
+    'SIGNING_KEY': SECRET_KEY_ENV,
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,

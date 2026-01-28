@@ -38,6 +38,8 @@ services:
       - ./services/identity:/app
     environment:
       - DATABASE_URL=postgresql://admin:secret@db_identity:5432/identity_db
+      - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 
+      - JWT_SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0
     depends_on:
       - db_identity
 
@@ -49,6 +51,8 @@ services:
       - ./services/inventory:/app
     environment:
       - DATABASE_URL=postgresql://admin:secret@db_inventory:5432/inventory_db
+      - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 
+      - JWT_SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0
     ports:
       - "8001:8000"
     depends_on:
