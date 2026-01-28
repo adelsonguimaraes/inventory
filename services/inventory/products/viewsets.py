@@ -33,3 +33,28 @@ class ProductViewSet(viewsets.ModelViewSet):
             'critical_items': critical_items,
             'message': 'Existem itens que precisam de reposição!' if critical_items > 0 else 'Estoque saudável.'
         })
+
+    @action(detail=True, methods=['patch'], url_path='update-stock')
+    def update_stock(self, request, pk=None):
+        """
+            Incrementa ou decrementa a quantidade de estoque de um produto
+        """
+        product = self.get_object()
+        quantity_change = request.data.get('quantity', 0)
+
+        try:
+            quantity_change = int(quantity_change)
+        except ValueError:
+            return Response({'error': 'Quantidade inválida.'}, status=400)
+
+        if product.stock_quantity + quantity_change < 0:
+            return Response(
+                {"error": f"Operação inválida. Estoque atual ({product.stock_quantity}) insuficiente."},
+                status=400
+            )
+
+        product.stock_quantity += quantity_change
+        product.save()
+
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)

@@ -1,16 +1,32 @@
-function App() {
-  return (
-    <div className="h-screen bg-slate-900 flex items-center justify-center">
-      <div className="p-10 bg-white rounded-xl shadow-2xl">
-        <h1 className="text-3xl font-bold text-orange-600 animate-bounce">
-          Tailwind Funcionando! 🚀
-        </h1>
-        <p className="text-gray-500 mt-4 text-center">
-          Agora podemos focar na lógica do sistema.
-        </p>
-      </div>
-    </div>
-  )
-}
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { PrivateRoute } from './routes/PrivateRoute';
+import { Login } from './pages/Login';
+import { Dashboard } from './pages/Dashboard';
 
-export default App
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Rota Pública de Login */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Rota Protegida (SOLID: Usando composição de componentes) */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } 
+          />
+
+          {/* Redirecionamento Padrão */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}

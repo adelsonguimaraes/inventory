@@ -1,4 +1,3 @@
-README.md: TechStock Microservices
 🎯 Objetivo do Projeto
 Desenvolver um sistema escalável de controle de inventário de equipamentos de TI, focando em rastreabilidade, integridade de dados e separação de responsabilidades utilizando uma arquitetura de microserviços.
 
@@ -72,17 +71,16 @@ Aqui está o checklist atualizado com os próximos passos estratégicos:
 
 [x] Configuração do Swagger para o Inventory Service.
 
-🟡 Fase 4: Frontend Web (React + TypeScript) 👈 NOSSO PRÓXIMO ALVO
+🟡 Fase 4: Frontend Web (React + TypeScript) - Status
+[x] Setup do projeto React com Vite e Tailwind CSS.
 
-[ ] Setup do projeto React com Vite e Tailwind CSS.
+[x] Implementação de Axios Interceptors para gestão do JWT.
 
-[ ] Implementação de Axios Interceptors para gestão do JWT.
+[x] Implementação de Context API para gestão de estado.
 
-[ ] Implementação de Context API para gestão de estado do usuário.
+[x] Tela de Login e Registro. (UI e Lógica integradas).
 
-[ ] Tela de Login e Registro consumindo a API de Identidade.
-
-[ ] Dashboard de Inventário consumindo o CRUD de produtos.
+[/] Dashboard de Inventário. (Estrutura e Hook de busca prontos, falta exibição de dados reais).
 
 # Defesa 1
 🧐 Pontos de Atenção para a Defesa Técnica
@@ -105,3 +103,19 @@ Padronização: O uso do CustomUser logo no início evita o "débito técnico" d
 Microservices vs. Monólito: "Ao iniciarmos a Fase 3, provaremos a escalabilidade do sistema. O serviço de Inventário poderá crescer independentemente do serviço de Identidade, podendo inclusive ser escrito em outra linguagem no futuro, se necessário."
 
 Interoperabilidade: "Mesmo sendo serviços distintos, eles compartilham o mesmo segredo de assinatura JWT, permitindo que o inventory_service confie na identidade do usuário sem precisar consultar o banco de dados do identity_service a cada requisição."
+
+
+## Comands
+- Identity Service Commands
+```
+docker compose exec identity_service python3 manage.py startapp accounts
+docker compose exec identity_service python3 manage.py makemigrations
+docker compose exec identity_service python3 manage.py migrate
+```
+
+- Inventory Service Commands
+```
+docker compose exec inventory_service python3 manage.py startapp products
+docker compose exec inventory_service python3 manage.py makemigrations
+docker compose exec inventory_service python3 manage.py migrate
+```
