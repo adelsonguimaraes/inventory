@@ -11,10 +11,15 @@ export default defineConfig({
     }
   },
   server: {
-    host: true, // Permite acesso externo (Docker)
+    host: true, // habilitando acesso externo (Docker)
     port: 5173,
     watch: {
-      usePolling: true, // Necessário para o Hot Reload funcionar no Windows/Docker
+      usePolling: true, // habilitando hotreload Windows/Docker
     },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
   },
 })
