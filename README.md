@@ -45,19 +45,19 @@ Siga os passos abaixo para subir o ambiente completo:
 
     ```
     git clone https://github.com/adelsonguimaraes/inventory
-    cd inventory-system
+    cd inventory
     ```
 
 2. Subir os Containers: O Docker Compose irá construir as imagens e iniciar os bancos de dados, o gateway, os microserviços e o frontend.
 
     ```
-    docker-compose up -d --build
+    docker compose up -d --build
     ```
 3. Executar Migrations: Garanta que as tabelas do banco de dados sejam criadas:
 
     ```
-    docker-compose exec identity_service python manage.py migrate
-    docker-compose exec inventory_service python manage.py migrate
+    docker compose exec identity_service python3 manage.py migrate
+    docker compose exec inventory_service python3 manage.py migrate
     ```
 
 # Como acessar:
@@ -70,6 +70,9 @@ Siga os passos abaixo para subir o ambiente completo:
 
 * Inventory Docs (Swagger): http://localhost:8080/inventory/docs/
 
+* Mailpit (Email de testes):
+http://localhost:8025/
+
 # 🧪 Executando Testes
 O projeto conta com uma suite de testes para garantir a confiabilidade das regras de negócio.
 
@@ -77,7 +80,7 @@ O projeto conta com uma suite de testes para garantir a confiabilidade das regra
 
 Para rodar os testes de integração das ViewSets e validação de estoque:
 
-    docker-compose exec inventory_service python manage.py test products
+    docker compose exec inventory_service python3 manage.py test products
     
 
 🔹 Frontend (Vitest)
@@ -98,17 +101,17 @@ Para rodar os testes unitários de componentes e lógica de interface:
 * Ver logs de um serviço específico: 
     
     ```
-    docker-compose logs -f inventory_service
+    docker compose logs -f inventory_service
     ```
 
 * Criar superusuário (Admin): 
 
     ```
-    docker-compose exec identity_service python manage.py createsuperuser
+    docker compose exec identity_service python3 manage.py createsuperuser
     ```
 
 * Parar o ambiente: 
     
     ```
-    docker-compose down
+    docker compose down
     ```
