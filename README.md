@@ -60,6 +60,12 @@ Siga os passos abaixo para subir o ambiente completo:
     docker compose exec inventory_service python3 manage.py migrate
     ```
 
+4. Executar ETL para alimentar a base de dados
+
+    ```
+    docker compose exec inventory_service python3 manage.py import_inventory products_data.csv
+    ```
+
 # Como acessar:
 
 * Frontend: http://localhost:5173
@@ -115,3 +121,9 @@ Para rodar os testes unitários de componentes e lógica de interface:
     ```
     docker compose down
     ```
+
+## 📊 Expansibilidade: BI & ETL
+A arquitetura foi pensada para suportar pipelines de dados. A tabela de `StockTransactions` funciona como um Event Log ideal para processos de ETL, permitindo:
+1. Extração de logs de movimentação via scripts Python (Pandas/FastAPI).
+2. Transformação de dados para cálculo de giro de estoque.
+3. Carga em Data Warehouses para visualização em ferramentas como PowerBI ou Grafana.
