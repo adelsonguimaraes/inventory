@@ -5,6 +5,7 @@ from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
 from rest_framework.exceptions import PermissionDenied
 from .services import validate_user_remotely
+from django.db.models import F, Sum
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
@@ -41,9 +42,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         """
             Retorna um resumo rápido do total de produtos em estoque e quantos estão abaixo do mínimo.
         """
-        total_products = self.queryset.count()
-        critical_items = self.queryset.filter(stock_quantity__lt=10).count()
-        total_value = sum(p.price * p.stock_quantity for p in self.queryset)
+        queryset = self.get_queryset()
+
+        total_products = queryset.count()
+        critical_items = queryset.filter(stock_quantity__lt=10).count()
+        
+        total_value = queryset.aggregate(
+            total=Sum(F('price') * F('stock_quantity'))
+        )['total'] or 0
 
         return Response({
             'total_products': total_products,
