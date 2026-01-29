@@ -94,6 +94,13 @@ services:
       redis:
         condition: service_healthy
 
+  # --- SERVIÇO DE EMAIL PARA DESENVOLVIMENTO ---
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025" # Painel Web do Mailpit
+      - "1025:1025" # Servidor SMTP
+
   # --- GATEWAY E FRONTEND ---
   gateway:
     image: nginx:latest

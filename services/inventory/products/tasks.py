@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from celery import shared_task
 import requests
 import logging
@@ -14,9 +15,13 @@ def alert_critical_stock(product_name, current_stock):
 
     time.sleep(5) # Simula lentidão
     logger.info(f"📢 ALERTA: Produto {product_name} está com estoque baixo ({current_stock} unidades)!")
-    
-    # Aqui o Celery poderia avisar o Identity Service
-    # url = "http://gateway:8080/api/auth/notify-admin/"
-    # requests.post(url, json={"msg": f"Repor {product_name}"})
+
+    send_mail(
+        '🚨 ALERTA: Estoque Crítico!',
+        f'O produto {product_name} atingiu {current_stock} unidades.',
+        'sistema@inventory.com',
+        ['admin@spassu.com'],
+        fail_silently=False,
+    )
     
     return True
