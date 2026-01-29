@@ -27,10 +27,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         """
         total_products = self.queryset.count()
         critical_items = self.queryset.filter(stock_quantity__lt=10).count()
+        total_value = sum(p.price * p.stock_quantity for p in self.queryset)
 
         return Response({
             'total_products': total_products,
             'critical_items': critical_items,
+            'total_value': total_value,
             'message': 'Existem itens que precisam de reposição!' if critical_items > 0 else 'Estoque saudável.'
         })
 

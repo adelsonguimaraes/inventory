@@ -1,5 +1,5 @@
 {
-    "name": "TechStock Microservices",
+    "name": "Inventory Microservices",
     "dockerComposeFile": "../docker-compose.yml",
     "service": "identity_service", // Serviço padrão para abrir o terminal
     "workspaceFolder": "/app",
@@ -8,8 +8,10 @@
             "extensions": [
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "ms-python.black-formatter",
-                "ms-python.flake8"
+                "dbaeumer.vscode-eslint",            // Adicionado para TSX
+                "esbenp.prettier-vscode",            // Adicionado para formatação
+                "bradlc.vscode-tailwindcss",         // Adicionado para Tailwind
+                "dsznajder.es7-react-js-snippets"    // Snippets de React
             ],
             "settings": {
                 "python.defaultInterpreterPath": "/usr/bin/python3",

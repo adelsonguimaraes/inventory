@@ -3,28 +3,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductModal } from "@/components/ProductModal";
 import api from "@/services/api";
-import { Package, LogOut, Box, Plus, Trash2, AlertTriangle, DollarSign } from "lucide-react";
-import { StatCard } from '@/components/StatCard';
+import {
+  Package,
+  LogOut,
+  Box,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  DollarSign,
+} from "lucide-react";
+import { StatCard } from "@/components/StatCard";
 
 export const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { products, setProducts, loading, error } = useProducts();
+  const { products, stats, loading, error, setProducts, refreshData } = useProducts();
   const { signOut } = useAuth();
-
-  const stats = React.useMemo(() => {
-    const totalItems = products.length;
-    const lowStockItems = products.filter(p => p.stock_quantity < 10).length;
-    const totalValue = products.reduce((acc, p) => {
-      return acc + (Number(p.price) * p.stock_quantity);
-    }, 0);
-
-    return { totalItems, lowStockItems, totalValue };
-  }, [products]);
-
-  const handleRefresh = async () => {
-    const response = await api.get("/inventory/products/");
-    setProducts(response.data);
-  };
 
   const handleUpdateStock = async (id: string, amount: number) => {
     try {
@@ -34,7 +27,12 @@ export const Dashboard = () => {
           quantity: amount,
         },
       );
+      
+      // Atualizamos a lista local
       setProducts((prev) => prev.map((p) => (p.id === id ? response.data : p)));
+      
+      // Sincronizamos os Stats do topo, pois o valor total ou estoque crítico mudou
+      refreshData();
     } catch (err: any) {
       alert(err.response?.data?.error || "Erro ao atualizar estoque.");
     }
@@ -45,8 +43,9 @@ export const Dashboard = () => {
 
     try {
       await api.delete(`/inventory/products/${id}/`);
-      // Atualiza a lista local removendo o item deletado
+      // Remove da lista e atualiza os stats
       setProducts((prev) => prev.filter((p) => p.id !== id));
+      refreshData();
     } catch (err) {
       alert("Erro ao excluir produto.");
     }
@@ -55,7 +54,10 @@ export const Dashboard = () => {
   if (loading)
     return (
       <div className="flex h-screen items-center justify-center text-slate-500">
-        Carregando inventário...
+        <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <span>Carregando inventário...</span>
+        </div>
       </div>
     );
 
@@ -96,28 +98,31 @@ export const Dashboard = () => {
         </header>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-100">
             {error}
           </div>
         )}
 
-        {/* Seção de Stats */}
+        {/* Seção de Stats - Agora 100% vinda do Backend */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard 
+          <StatCard
             title="Total de Produtos"
-            value={stats.totalItems}
+            value={stats.total_products}
             icon={Package}
             color="bg-blue-500"
           />
-          <StatCard 
+          <StatCard
             title="Estoque Crítico"
-            value={stats.lowStockItems}
+            value={stats.critical_items}
             icon={AlertTriangle}
             color="bg-amber-500"
           />
-          <StatCard 
+          <StatCard
             title="Valor em Estoque"
-            value={stats.totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            value={stats.total_value.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
             icon={DollarSign}
             color="bg-emerald-500"
           />
@@ -177,9 +182,9 @@ export const Dashboard = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-slate-600">
-                    R${" "}
                     {Number(product.price).toLocaleString("pt-BR", {
-                      minimumFractionDigits: 2,
+                      style: "currency",
+                      currency: "BRL",
                     })}
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -207,7 +212,7 @@ export const Dashboard = () => {
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={handleRefresh}
+        onSuccess={refreshData}
       />
     </div>
   );

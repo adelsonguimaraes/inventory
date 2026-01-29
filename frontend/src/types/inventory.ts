@@ -6,3 +6,10 @@ export interface Product {
     stock_quantity: number;
     price: number;
 }
+
+export interface ProductStats {
+    total_products: number;
+    critical_items: number;
+    total_value: number;
+    message?: string;
+}
