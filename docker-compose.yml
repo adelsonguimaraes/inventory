@@ -1,13 +1,18 @@
 version: '3.8'
 
 services:
-
+  # --- BANCOS DE DADOS ---
   db_identity:
     image: postgres:15-alpine
     environment:
       - POSTGRES_DB=identity_db
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d identity_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5433:5432"
     volumes:
@@ -19,21 +24,26 @@ services:
       - POSTGRES_DB=inventory_db
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5434:5432"
     volumes:
       - postgres_inventory_data:/var/lib/postgresql/data
 
-  gateway:
-    image: nginx:latest
-    ports:
-      - "8080:80"
-    volumes:
-      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - db_identity
-      - db_inventory
+  # --- MENSAGERIA ---
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
+  # --- BACKEND SERVICES ---
   identity_service:
     build: 
       context: ./services
@@ -46,7 +56,8 @@ services:
       - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 
       - JWT_SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0
     depends_on:
-      - db_identity
+      db_identity:
+        condition: service_healthy
 
   inventory_service:
     build: 
@@ -59,10 +70,42 @@ services:
       - DATABASE_URL=postgresql://admin:secret@db_inventory:5432/inventory_db
       - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 
       - JWT_SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0
-    ports:
-      - "8001:8000"
+      - CELERY_BROKER_URL=redis://redis:6379/0
     depends_on:
-      - db_inventory
+      db_inventory:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # --- WORKER ---
+  celery_worker:
+    build: 
+      context: ./services
+      dockerfile: Dockerfile
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - ./services/inventory:/app
+    environment:
+      - DATABASE_URL=postgresql://admin:secret@db_inventory:5432/inventory_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      db_inventory:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # --- GATEWAY E FRONTEND ---
+  gateway:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      identity_service:
+        condition: service_started
+      inventory_service:
+        condition: service_started
 
   frontend:
     build:
@@ -75,6 +118,8 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - gateway
     stdin_open: true
     tty: true
 

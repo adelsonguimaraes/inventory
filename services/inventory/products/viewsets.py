@@ -6,6 +6,11 @@ from .serializers import CategorySerializer, ProductSerializer
 from rest_framework.exceptions import PermissionDenied
 from .services import validate_user_remotely
 from django.db.models import F, Sum
+from django.db import transaction
+from .tasks import alert_critical_stock
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
@@ -62,6 +67,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def update_stock(self, request, pk=None):
         product = self.get_object()
         
+        # 1. Valdiação do usuário via Identity Service
         token = request.headers.get('Authorization')
         if not validate_user_remotely(request.user.id, token):
             return Response(
@@ -69,32 +75,43 @@ class ProductViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        quantity_change = request.data.get('quantity', 0)
-
+        # 2. Sanitização de Input
         try:
-            quantity_change = int(quantity_change)
+            quantity_change = int(request.data.get('quantity', 0))
         except (ValueError, TypeError):
             return Response({'error': 'Quantidade inválida.'}, status=400)
 
+        # 3. Regra de Negócio (Estoque não pode ser negativo)
         if product.stock_quantity + quantity_change < 0:
             return Response(
                 {"error": f"Estoque insuficiente. Disponível: {product.stock_quantity}"},
                 status=400
             )
 
-        from .models import StockTransaction # Import local para evitar circular import
-        
-        StockTransaction.objects.create(
-            product=product,
-            quantity=abs(quantity_change),
-            type='IN' if quantity_change > 0 else 'OUT',
-            user_id=request.user.id,
-            notes="Ajuste rápido via Dashboard"
-        )
+        # 4. Operação Atômica (Segurança de Dados)
+        from .models import StockTransaction
+        try:
+            with transaction.atomic():
+                StockTransaction.objects.create(
+                    product=product,
+                    quantity=abs(quantity_change),
+                    type='IN' if quantity_change > 0 else 'OUT',
+                    user_id=request.user.id,
+                    notes="Ajuste rápido via Dashboard"
+                )
+                product.refresh_from_db()
+        except Exception as e:
+            logger.error(f"Erro ao salvar transação: {e}")
+            return Response({'error': 'Erro interno ao processar estoque.'}, status=500)
 
-        # Recarregamos o produto para pegar o valor atualizado pelo Signal
-        product.refresh_from_db()
-        
+        # 5. Notificação Assíncrona (Celery + Redis)
+        if product.stock_quantity < 10:
+            try:
+                alert_critical_stock.delay(product.name, product.stock_quantity)
+            except Exception as e:
+                # Se o Redis falhar, apenas logamos o erro. O usuário não deve ser punido.
+                logger.warning(f"Falha ao enviar tarefa para o Redis: {e}")
+
         serializer = self.get_serializer(product)
         return Response(serializer.data)
 
