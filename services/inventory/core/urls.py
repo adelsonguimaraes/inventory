@@ -22,6 +22,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("products.urls")),
+    path('api-auth/', include('rest_framework.urls')),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path('docs/', SpectacularSwaggerView.as_view(
         url='/api/inventory/schema/', title='Inventory Service API Docs'

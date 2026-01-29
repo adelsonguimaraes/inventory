@@ -11,12 +11,15 @@ import {
   Trash2,
   AlertTriangle,
   DollarSign,
+  Clock,
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { HistoryModal } from "@/components/HistoryModal";
 
 export const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { products, stats, loading, error, setProducts, refreshData } = useProducts();
+  const [historyProduct, setHistoryProduct] = useState<any>(null);
   const { signOut } = useAuth();
 
   const handleUpdateStock = async (id: string, amount: number) => {
@@ -146,8 +149,14 @@ export const Dashboard = () => {
                   className="hover:bg-slate-50/50 transition-colors group"
                 >
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-slate-700">
-                      {product.name}
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-700">{product.name}</span>
+                        <button 
+                            onClick={() => setHistoryProduct(product)}
+                            className="text-slate-300 hover:text-blue-500 transition-colors"
+                        >
+                            <Clock size={14} />
+                        </button>
                     </div>
                     <div className="text-xs text-slate-400 uppercase">
                       {product.category_name}
@@ -214,6 +223,14 @@ export const Dashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSuccess={refreshData}
       />
+
+      {historyProduct && (
+          <HistoryModal 
+              productId={historyProduct.id} 
+              productName={historyProduct.name} 
+              onClose={() => setHistoryProduct(null)} 
+          />
+      )}
     </div>
   );
 };

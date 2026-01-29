@@ -8,6 +8,8 @@ services:
       - POSTGRES_DB=identity_db
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
+    ports:
+      - "5433:5432"
     volumes:
       - postgres_identity_data:/var/lib/postgresql/data
 
@@ -17,6 +19,8 @@ services:
       - POSTGRES_DB=inventory_db
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
+    ports:
+      - "5434:5432"
     volumes:
       - postgres_inventory_data:/var/lib/postgresql/data
 
@@ -36,6 +40,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./services/identity:/app
+      - ./protos:/app/protos:ro
     environment:
       - DATABASE_URL=postgresql://admin:secret@db_identity:5432/identity_db
       - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 
@@ -49,6 +54,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./services/inventory:/app
+      - ./protos:/app/protos:ro
     environment:
       - DATABASE_URL=postgresql://admin:secret@db_inventory:5432/inventory_db
       - SECRET_KEY=CH4V3S3CR3TK3YF0RDJ4NG0 

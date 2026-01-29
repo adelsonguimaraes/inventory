@@ -92,6 +92,21 @@ Com o CRUD de Produtos praticamente fechado, vamos atualizar nosso progresso par
 
 [x] Cadastro de novos produtos com modal.
 
+Excelente! Adicionar uma etapa de Comunicação entre Microserviços (gRPC) vai transformar seu projeto de um "conjunto de APIs" em um Sistema Distribuído de Alto Nível.
+
+Aqui está a atualização do seu checklist com a Fase 5, focada nessa integração robusta:
+
+🟢 Fase 5: Integração e Comunicação entre Serviços (gRPC) - Status: ⏳
+[ ] Definição do Contrato (Protocol Buffers): Criar o arquivo user_validation.proto para padronizar a comunicação entre Identity e Inventory.
+
+[ ] Identity Service (Server): Implementar o servidor gRPC que expõe o método de validação de usuários ativos.
+
+[ ] Inventory Service (Client): Implementar o cliente gRPC para consultar o Identity antes de cada movimentação de estoque.
+
+[ ] Middleware de Auditoria: Integrar a chamada gRPC no fluxo do Signal ou da View para garantir que apenas usuários válidos gerem logs.
+
+[ ] Docker Orchestration: Configurar portas internas (ex: 50051) e redes no docker-compose.yml para o tráfego gRPC.
+
 # Defesa 1
 🧐 Pontos de Atenção para a Defesa Técnica
 Isolamento de Dados: Explicar por que cada microserviço tem seu próprio banco de dados (evitar acoplamento).
@@ -128,4 +143,8 @@ docker compose exec identity_service python3 manage.py migrate
 docker compose exec inventory_service python3 manage.py startapp products
 docker compose exec inventory_service python3 manage.py makemigrations
 docker compose exec inventory_service python3 manage.py migrate
+```
+
+```
+docker-compose exec inventory_service python manage.py collectstatic --noinput
 ```

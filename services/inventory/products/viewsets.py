@@ -1,8 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
+from rest_framework.exceptions import PermissionDenied
+from .services import validate_user_remotely
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
@@ -19,6 +21,20 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    ordering = ['-id']
+
+    def perform_create(self, serializer):
+        """
+            Sobrescreve a criação para validar o usuário no Identity Service.
+        """ 
+        token = self.request.headers.get('Authorization')
+        user_id = self.request.user.id
+
+        if not validate_user_remotely(user_id, token):
+            raise PermissionDenied("Usuário inválido ou não autenticado.")
+
+        serializer.save()
+
 
     @action(detail=False, methods=['get'], url_path='status-stock')
     def status_stock(self, request):
@@ -38,25 +54,56 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['patch'], url_path='update-stock')
     def update_stock(self, request, pk=None):
-        """
-            Incrementa ou decrementa a quantidade de estoque de um produto
-        """
         product = self.get_object()
+        
+        token = request.headers.get('Authorization')
+        if not validate_user_remotely(request.user.id, token):
+            return Response(
+                {'error': 'Usuário não autorizado pelo serviço de Identidade.'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         quantity_change = request.data.get('quantity', 0)
 
         try:
             quantity_change = int(quantity_change)
-        except ValueError:
+        except (ValueError, TypeError):
             return Response({'error': 'Quantidade inválida.'}, status=400)
 
         if product.stock_quantity + quantity_change < 0:
             return Response(
-                {"error": f"Operação inválida. Estoque atual ({product.stock_quantity}) insuficiente."},
+                {"error": f"Estoque insuficiente. Disponível: {product.stock_quantity}"},
                 status=400
             )
 
-        product.stock_quantity += quantity_change
-        product.save()
+        from .models import StockTransaction # Import local para evitar circular import
+        
+        StockTransaction.objects.create(
+            product=product,
+            quantity=abs(quantity_change),
+            type='IN' if quantity_change > 0 else 'OUT',
+            user_id=request.user.id,
+            notes="Ajuste rápido via Dashboard"
+        )
 
+        # Recarregamos o produto para pegar o valor atualizado pelo Signal
+        product.refresh_from_db()
+        
         serializer = self.get_serializer(product)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='history')
+    def history(self, request, pk=None):
+        product = self.get_object()
+        transactions = product.transactions.all().order_by('-created_at')
+        
+        data = [{
+            "id": t.id,
+            "type": t.type,
+            "quantity": t.quantity,
+            "user_id": t.user_id,
+            "date": t.created_at.strftime("%d/%m/%Y %H:%M"),
+            "notes": t.notes
+        } for t in transactions]
+        
+        return Response(data)
