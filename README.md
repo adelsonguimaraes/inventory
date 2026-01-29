@@ -71,16 +71,26 @@ Aqui está o checklist atualizado com os próximos passos estratégicos:
 
 [x] Configuração do Swagger para o Inventory Service.
 
-🟡 Fase 4: Frontend Web (React + TypeScript) - Status
+Excelente! Ver o fluxo completo (Autenticação → Listagem → Atualização → Cadastro) funcionando em uma arquitetura de microserviços é uma vitória enorme. Isso prova que sua fundação técnica — Docker, Nginx, Django e React — está sólida.
+
+Com o CRUD de Produtos praticamente fechado, vamos atualizar nosso progresso para refletir essa conquista:
+
+🟢 Fase 4: Frontend Web (React + TypeScript) - Status
 [x] Setup do projeto React com Vite e Tailwind CSS.
 
 [x] Implementação de Axios Interceptors para gestão do JWT.
 
 [x] Implementação de Context API para gestão de estado.
 
-[x] Tela de Login e Registro. (UI e Lógica integradas).
+[x] Tela de Login e Registro.
 
-[/] Dashboard de Inventário. (Estrutura e Hook de busca prontos, falta exibição de dados reais).
+[x] Dashboard de Inventário:
+
+[x] Listagem de produtos em tempo real.
+
+[x] Atualização rápida de estoque (Quick Actions).
+
+[x] Cadastro de novos produtos com modal.
 
 # Defesa 1
 🧐 Pontos de Atenção para a Defesa Técnica

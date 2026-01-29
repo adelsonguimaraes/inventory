@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import StockTrasaction
+from .models import StockTransaction
 
-@receiver(post_save, sender=StockTrasaction)
-def update_stock(sender, instance: StockTrasaction, **kwargs) -> None:
+@receiver(post_save, sender=StockTransaction)
+def update_stock(sender, instance: StockTransaction, created, **kwargs) -> None:
     """
         Sinal para atualizar a quantidade em estoque do produto
         após uma transação de estoque ser salva.

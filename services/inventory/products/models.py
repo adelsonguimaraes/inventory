@@ -19,7 +19,7 @@ class Product(models.Model):
         return f"{self.name} ({self.sku})"
 
 
-class StockTrasaction(models.Model):
+class StockTransaction(models.Model):
     TRANSACTION_TYPES = (
         ('IN', 'Entrada (Compra/Reposição)'),
         ('OUT', 'Saída (Venda/Remoção)'),
