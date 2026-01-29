@@ -1,59 +1,114 @@
-🚀 Inventory: Microservices Inventory System
-Sistema escalável de controle de inventário de TI focado em rastreabilidade e isolamento de dados.
+# 📦 Inventory Management System (Microservices)
+Sistema robusto de gestão de inventário baseado em microserviços, com foco em escalabilidade, mensageria assíncrona e integridade de dados.
 
-🏗️ Arquitetura do Sistema
-O projeto utiliza uma arquitetura de microserviços desacoplados, garantindo que uma falha no serviço de inventário não afete a autenticação dos usuários.
+# 🚀 Tecnologias e Arquitetura
+O projeto utiliza uma arquitetura distribuída para garantir separação de responsabilidades e escalabilidade.
 
-API Gateway (Nginx): Ponto único de entrada, gerenciando rotas e CORS.
+🔹 Backend (Microserviços)
+* Django & Django REST Framework: Framework principal para as APIs.
 
-Identity Service (Django): Gestão de usuários e emissão de tokens JWT.
+* Microserviço de Identidade: Gestão de usuários e autenticação JWT.
 
-Inventory Service (Django): Core de negócio com banco de dados PostgreSQL independente.
+* Microserviço de Inventário: Gestão de produtos, categorias e transações.
 
-Frontend (React + TS): Interface SPA de alta performance com persistência de sessão.
+* Celery & Redis: Processamento de tarefas assíncronas (como alertas de estoque).
 
-🛠️ Decisões Técnicas (Diferenciais)
-Para a defesa técnica, destacamos:
+* Nginx (API Gateway): Ponto único de entrada que roteia as requisições para os serviços corretos.
 
-Database per Service: Cada microserviço possui seu próprio banco PostgreSQL, impedindo o acoplamento via banco de dados.
+🔹Frontend
+* React (Vite): Interface performática e moderna.
 
-Stateless Auth: O serviço de inventário valida o JWT de forma independente, sem consultar o banco de identidade a cada requisição.
+* Tailwind CSS: Estilização baseada em utilitários para UI * responsiva.
 
-Type Safety: Uso rigoroso de TypeScript no Front e Type Hinting (PEP 484) no Back.
+* Lucide React: Conjunto de ícones leves.
 
-Persistência de Estado: Implementação de loading states e localStorage para evitar redirecionamentos indesejados no refresh (F5).
+* Vitest & React Testing Library: Suite de testes unitários e de comportamento.
 
-📊 KPIs do Dashboard
-O sistema oferece visão em tempo real de:
+🔹Infraestrutura
+* Docker & Docker Compose: Containerização de todos os serviços.
 
-Valor Total do Ativo: Cálculo dinâmico do patrimônio em estoque.
+* PostgreSQL: Banco de dados relacional para persistência de dados.
 
-Alertas de Estoque Crítico: Identificação visual e estatística de itens abaixo do limite de segurança.
+# 📋 Requisitos e Ambiente
+Para rodar este projeto, você precisará de:
 
-Rastreabilidade: Log de transações para cada entrada e saída de material.
+* Docker (v20.10+)
 
-🚀 Como Rodar o Projeto
-O ambiente é totalmente conteinerizado para garantir que o projeto rode exatamente igual em qualquer máquina.
+* Docker Compose (v2.0+)
 
-Bash
-# Clone o repositório
-git clone https://github.com/adelsonguimaraes/inventory
+* Git
 
-# Suba toda a infraestrutura (Gateway, Databases, Microservices, Frontend)
-```
-docker-compose up --build
-```
-Acesso:
+# 🛠️ Configuração e Instalação
+Siga os passos abaixo para subir o ambiente completo:
 
-Frontend: http://localhost:5173
+1. Clonar o Repositório:
 
-API Gateway: http://localhost:80
+    ```
+    git clone https://github.com/adelsonguimaraes/inventory
+    cd inventory-system
+    ```
 
-Swagger Identity: http://localhost/api/auth/docs
+2. Subir os Containers: O Docker Compose irá construir as imagens e iniciar os bancos de dados, o gateway, os microserviços e o frontend.
 
-Swagger Inventory: http://localhost/api/inventory/docs
+    ```
+    docker-compose up -d --build
+    ```
+3. Executar Migrations: Garanta que as tabelas do banco de dados sejam criadas:
 
-⚖️ Conformidade e Padrões
-Backend: PEP 8 (Style), PEP 257 (Docstrings), SOLID.
+    ```
+    docker-compose exec identity_service python manage.py migrate
+    docker-compose exec inventory_service python manage.py migrate
+    ```
 
-Frontend: ESLint, Prettier, Tailwind CSS, Context API.
+# Como acessar:
+
+* Frontend: http://localhost:5173
+
+* Gateway (API): http://localhost:8080
+
+* Identity Docs (Swagger): http://localhost:8080/auth/docs/
+
+* Inventory Docs (Swagger): http://localhost:8080/inventory/docs/
+
+# 🧪 Executando Testes
+O projeto conta com uma suite de testes para garantir a confiabilidade das regras de negócio.
+
+🔹 Backend (Django)
+
+Para rodar os testes de integração das ViewSets e validação de estoque:
+
+    docker-compose exec inventory_service python manage.py test products
+    
+
+🔹 Frontend (Vitest)
+Para rodar os testes unitários de componentes e lógica de interface:
+
+    docker compose exec frontend npm test
+
+# ⚙️ Principais Funcionalidades
+* Autenticação Centralizada: Login via Microserviço de Identity com emissão de Tokens JWT.
+
+* Gestão de Estoque: Atualização em tempo real com histórico de movimentações.
+
+* Alertas Críticos: Identificação visual de itens abaixo do nível mínimo.
+
+* Arquitetura Event-Driven: Uso de Celery para tarefas que não devem bloquear o fluxo principal.
+
+# 🛠 Comandos Úteis
+* Ver logs de um serviço específico: 
+    
+    ```
+    docker-compose logs -f inventory_service
+    ```
+
+* Criar superusuário (Admin): 
+
+    ```
+    docker-compose exec identity_service python manage.py createsuperuser
+    ```
+
+* Parar o ambiente: 
+    
+    ```
+    docker-compose down
+    ```
