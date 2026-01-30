@@ -17,4 +17,18 @@ api.interceptors.request.use((config: any) => {
     return config;
 });
 
+// Capturar 401
+api.interceptors.response.use(
+    (response: any) => response,
+    (error: any) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('@App:token');
+            localStorage.removeItem('user');
+
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

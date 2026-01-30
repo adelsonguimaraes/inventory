@@ -72,12 +72,11 @@ Siga os passos abaixo para subir o ambiente completo:
 
 * Gateway (API): http://localhost:8080
 
-* Identity Docs (Swagger): http://localhost:8080/auth/docs/
+* Identity Docs (Swagger): http://localhost:8080/api/auth/docs/
 
-* Inventory Docs (Swagger): http://localhost:8080/inventory/docs/
+* Inventory Docs (Swagger): http://localhost:8080/api/inventory/docs/
 
-* Mailpit (Email de testes):
-http://localhost:8025/
+* Mailpit (Email de testes): http://localhost:8025/
 
 # 🧪 Executando Testes
 O projeto conta com uma suite de testes para garantir a confiabilidade das regras de negócio.
